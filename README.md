@@ -1,8 +1,5 @@
 # Kafka-Learning
 
-
-  Kafka Data Pipeline Project body { font-family: Arial, sans-serif; line-height: 1.6; } h1, h2, h3, h4, h5 { color: #333; } pre { background-color: #f4f4f4; padding: 10px; border: 1px solid #ddd; overflow-x: auto; } code { background-color: #f4f4f4; padding: 2px 4px; border-radius: 4px; } .command { background-color: #e6ffe6; border-left: 4px solid #00cc00; padding: 5px; } .section-title { color: #2c3e50; }
-
 Kafka-Based Data Pipeline Project
 =================================
 
