@@ -1,0 +1,125 @@
+version: '3.8'
+
+# This Docker Compose file sets up a local environment for a data processing pipeline 
+# that includes Zookeeper, Kafka, a MongoDB database, an Airflow orchestration tool,
+# and a local Azure Blob Storage emulator (Azurite). 
+
+services:
+  
+  # Zookeeper service for managing Kafka brokers
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181  # Port for Zookeeper client connections
+      ZOOKEEPER_TICK_TIME: 2000     # Tick time in milliseconds for Zookeeper
+    ports:
+      - "2181:2181"  # Exposing port for external access
+
+  # Kafka broker service
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper  # Ensure Zookeeper starts before Kafka
+    environment:
+      KAFKA_BROKER_ID: 1  # Unique ID for the Kafka broker
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181  # Connection string for Zookeeper
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092  # Advertised listeners for clients
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1  # Replication factor for internal topics
+    ports:
+      - "9092:9092"  # Exposing Kafka broker port for external access
+
+  # Producer service that sends messages to Kafka
+  producer:
+    build: ./producer  # Build the producer from local directory
+    depends_on:
+      - kafka  # Ensure Kafka is up before starting the producer
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092  # Connection string for Kafka
+    restart: always  # Always restart the producer service on failure
+
+  # Consumer service that reads messages from Kafka and stores them in MongoDB
+  consumer:
+    build: ./consumer  # Build the consumer from local directory
+    depends_on:
+      - kafka  # Ensure Kafka is up before starting the consumer
+      - mongo   # Ensure MongoDB is running before starting the consumer
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092  # Connection string for Kafka
+      MONGO_URI: mongodb://mongo:27017/kafka_db  # Connection string for MongoDB
+    restart: always  # Always restart the consumer service on failure
+
+  # MongoDB service for storing data consumed from Kafka
+  mongo:
+    image: mongo:6.0  # Use MongoDB version 6.0
+    ports:
+      - "27017:27017"  # Exposing MongoDB port for external access
+    volumes:
+      - mongo_data:/data/db  # Persistent storage for MongoDB data
+
+  # Apache Airflow service for orchestrating tasks
+  airflow:
+    build: ./airflow  # Build the Airflow service from local directory
+    depends_on:
+      - kafka   # Ensure Kafka is running before starting Airflow
+      - mongo   # Ensure MongoDB is running before starting Airflow
+      - producer # Ensure producer is up before starting Airflow
+      - consumer # Ensure consumer is up before starting Airflow
+    ports:
+      - "8080:8080"  # Exposing Airflow web UI port for external access
+    environment:
+      - LOAD_EX=n  # Do not load examples by default
+      - EXECUTOR=Local  # Use LocalExecutor for running tasks
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags  # Mount DAGs directory
+      - ./airflow/plugins:/opt/airflow/plugins  # Mount plugins directory
+      - ./airflow/requirements.txt:/home/airflow/requirements.txt  # Mount requirements file
+      - /var/run/docker.sock:/var/run/docker.sock  # Mount Docker socket for executing Docker tasks
+    command: ["standalone"]  # Start Airflow in standalone mode
+    restart: always  # Always restart Airflow service on failure
+
+  # Azurite service for simulating Azure Blob Storage
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite  # Use Azurite image from Microsoft
+    ports:
+      - "10000:10000"  # Exposing Azurite port for external access
+    volumes:
+      - azurite_data:/data  # Persistent storage for Azurite data
+    command: "azurite-blob --blobHost 0.0.0.0"  # Run Azurite for blob storage
+
+  # Kafka Topics creation service
+  kafka-topics:
+    image: confluentinc/cp-kafka:latest  # Use Kafka image for creating topics
+    depends_on:
+      - kafka  # Ensure Kafka is running before creating topics
+    entrypoint: /bin/bash  # Use bash for executing commands
+    command:
+      - -c
+      - |
+        sleep 10  # Wait for Kafka to be fully initialized
+        kafka-topics --create --topic stock_data --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1  # Create a Kafka topic
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181  # Connection string for Zookeeper
+    restart: "no"  # Do not restart this service
+
+  # Kafka Exporter service for monitoring Kafka metrics
+  kafka-exporter:
+    image: danielqsj/kafka-exporter  # Use Kafka Exporter image
+    ports:
+      - "9308:9308"  # Exposing exporter port for external access
+    environment:
+      KAFKA_SERVER: kafka:9092  # Connection string for Kafka
+    restart: always  # Always restart the exporter service on failure
+
+  # Prometheus service for monitoring and alerting
+  prometheus:
+    image: prom/prometheus:latest  # Use the latest Prometheus image
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml  # Mount configuration file
+    ports:
+      - "9090:9090"  # Exposing Prometheus UI port for external access
+    restart: always  # Always restart Prometheus service on failure
+
+# Define persistent storage volumes for MongoDB and Azurite
+volumes:
+  mongo_data:  # Volume for MongoDB data
+  azurite_data:  # Volume for Azurite data

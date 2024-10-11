@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kafka-Based Data Pipeline Project: Comprehensive Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+        }
+        p, ul, li {
+            margin-bottom: 15px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+        pre {
+            background-color: #eaeaea;
+            padding: 10px;
+            border-left: 5px solid #333;
+            overflow-x: auto;
+        }
+        code {
+            font-family: monospace;
+            background-color: #f9f9f9;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Kafka-Based Data Pipeline Project: Comprehensive Report</h1>
+
+<h2>Project Overview</h2>
+<p>
+    The objective of this project is to develop a Kafka-based data pipeline that simulates real-time stock market data generation, processing, and monitoring. 
+    The pipeline leverages technologies like Kafka for data streaming, PySpark for data processing, MongoDB for data storage, Docker for containerization, 
+    and Apache Airflow for orchestration. Additionally, Prometheus is integrated for system monitoring. 
+    The project aims to provide hands-on experience with real-time data processing and to tackle common challenges encountered in such complex systems.
+</p>
+
+<h2>Objectives</h2>
+<ul>
+    <li>Real-Time Data Simulation: Generate synthetic stock market data in real-time using a Kafka producer.</li>
+    <li>Data Streaming: Implement a Kafka producer-consumer architecture to stream data efficiently.</li>
+    <li>Data Processing: Utilize PySpark for processing streaming data from Kafka topics.</li>
+    <li>Data Storage: Store the processed data in MongoDB for persistence and further analysis.</li>
+    <li>Orchestration: Use Apache Airflow to automate and manage task execution within the pipeline.</li>
+    <li>Monitoring: Integrate Prometheus for monitoring the system's performance and health.</li>
+    <li>Containerization: Deploy all services using Docker and manage them with Docker Compose.</li>
+    <li>Learning and Troubleshooting: Document challenges faced and solutions implemented to serve as a learning resource.</li>
+</ul>
+
+<h2>System Architecture</h2>
+<p>The system architecture comprises multiple interconnected components, each serving a specific purpose in the data pipeline:</p>
+<ul>
+    <li><strong>Kafka Producer</strong>: Generates synthetic stock data and publishes it to a Kafka topic.</li>
+    <li><strong>Kafka Broker</strong>: Acts as the message broker, handling the published messages.</li>
+    <li><strong>Kafka Consumer</strong>: Consumes the data from Kafka, processes it using PySpark, and writes it to MongoDB.</li>
+    <li><strong>PySpark</strong>: Processes streaming data for transformations and analytics.</li>
+    <li><strong>MongoDB</strong>: Serves as the database to store the processed stock data.</li>
+    <li><strong>Apache Airflow</strong>: Orchestrates tasks, ensuring that services are running and dependencies are managed.</li>
+    <li><strong>Prometheus</strong>: Monitors the Kafka broker and other services, collecting metrics for analysis.</li>
+    <li><strong>Azurite</strong>: Emulates Azure Blob Storage, included for potential future enhancements.</li>
+    <li><strong>Docker Compose</strong>: Manages the deployment and networking of all Docker containers.</li>
+</ul>
+
+<h3>Data Flow Diagram:</h3>
+<ul>
+    <li><strong>Data Generation</strong>: The producer generates stock data and sends it to Kafka.</li>
+    <li><strong>Data Streaming</strong>: Kafka brokers manage the message queues.</li>
+    <li><strong>Data Consumption</strong>: The consumer reads data from Kafka and processes it using PySpark.</li>
+    <li><strong>Data Storage</strong>: Processed data is stored in MongoDB.</li>
+    <li><strong>Orchestration and Monitoring</strong>: Airflow schedules tasks, and Prometheus monitors the system.</li>
+</ul>
+
+<h2>Docker Compose Services</h2>
+<p>The <code>docker-compose.yml</code> file orchestrates the following services:</p>
+<ul>
+    <li><strong>zookeeper</strong>: Manages the Kafka cluster.</li>
+    <li><strong>kafka</strong>: Kafka broker for message queuing.</li>
+    <li><strong>producer</strong>: Generates synthetic stock data.</li>
+    <li><strong>consumer</strong>: Processes and stores data in MongoDB.</li>
+    <li><strong>mongo</strong>: MongoDB database.</li>
+    <li><strong>airflow</strong>: Task orchestration using Apache Airflow.</li>
+    <li><strong>azurite</strong>: Azure Blob Storage emulator.</li>
+    <li><strong>kafka-exporter</strong>: Exports Kafka metrics for Prometheus.</li>
+    <li><strong>prometheus</strong>: System monitoring and metrics collection.</li>
+</ul>
+
+<h2>Network Configuration</h2>
+<ul>
+    <li><strong>Docker Network</strong>: All services are connected via Docker's default bridge network, allowing inter-service communication using service names as hostnames.</li>
+    <li><strong>Port Mapping</strong>: Specific ports are mapped to the host machine to facilitate external access:</li>
+    <ul>
+        <li><strong>Kafka Broker</strong>: 9092</li>
+        <li><strong>Zookeeper</strong>: 2181</li>
+        <li><strong>MongoDB</strong>: 27017</li>
+        <li><strong>Airflow Web UI</strong>: 8080</li>
+        <li><strong>Prometheus Web UI</strong>: 9090</li>
+        <li><strong>Azurite</strong>: 10000</li>
+        <li><strong>Kafka Exporter</strong>: 9308</li>
+    </ul>
+</ul>
+
+<h2>Directory Structure</h2>
+<pre><code>
+project-root/
+├── airflow/
+│   ├── dags/
+│   │   └── kafka_pipeline_dag.py
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   └── requirements.txt
+├── consumer/
+│   ├── consumer.py
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   └── requirements.txt
+├── producer/
+│   ├── producer.py
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   └── requirements.txt
+├── prometheus/
+│   └── prometheus.yml
+├── docker-compose.yml
+├── setup.sh
+└── README.md
+</code></pre>
+
+<h2>Logic and Workflow</h2>
+<ul>
+    <li><strong>Initialization</strong>:
+        <ul>
+            <li>The <code>setup.sh</code> script brings up all Docker services using <code>docker-compose</code>.</li>
+            <li>Waits for Kafka to be ready and creates the <code>stock_data</code> Kafka topic.</li>
+        </ul>
+    </li>
+    <li><strong>Data Generation (Producer)</strong>:
+        <ul>
+            <li>The producer generates synthetic stock data for symbols <code>NIFTY50_1</code> to <code>NIFTY50_50</code>.</li>
+            <li>Data includes timestamp, symbol name, and stock prices (open, high, low, close).</li>
+            <li>Sends data to the <code>stock_data</code> Kafka topic every second.</li>
+        </ul>
+    </li>
+    <li><strong>Data Streaming and Processing (Consumer)</strong>:
+        <ul>
+            <li>The consumer subscribes to the <code>stock_data</code> Kafka topic.</li>
+            <li>Uses PySpark to process streaming data.</li>
+            <li>Transforms and structures data according to a predefined schema.</li>
+            <li>Writes processed data to the <code>stock_prices</code> collection in MongoDB.</li>
+        </ul>
+    </li>
+    <li><strong>Task Orchestration (Airflow)</strong>:
+        <ul>
+            <li>Airflow DAG (<code>kafka_pipeline_dag.py</code>) schedules tasks to monitor the services.</li>
+            <li>Checks the status of the producer, consumer, Kafka, and MongoDB services.</li>
+        </ul>
+    </li>
+    <li><strong>Monitoring (Prometheus)</strong>:
+        <ul>
+            <li>Prometheus collects metrics from the Kafka exporter.</li>
+            <li>Provides real-time monitoring of Kafka and other services.</li>
+        </ul>
+    </li>
+</ul>
+
+<h2>Code Explanation</h2>
+<h3>Producer Code (<code>producer.py</code>)</h3>
+<p><strong>Purpose</strong>: Simulate real-time stock data generation and publish it to a Kafka topic.</p>
+
+<h4>Key Components:</h4>
+<p><strong>Imports:</strong></p>
+<pre><code>import time
+import json
+import random
+from datetime import datetime
+from confluent_kafka import Producer</code></pre>
+
+<p><strong>Configuration:</strong></p>
+<pre><code>KAFKA_TOPIC = 'stock_data'
+BROKER = 'kafka:9092'
+SYMBOLS = ['NIFTY50_' + str(i) for i in range(1, 51)]</code></pre>
+
+<p><strong>Delivery Report Callback:</strong></p>
+<pre><code>def delivery_report(err, msg):
+    if err is not None:
+        print(f"Delivery failed for message {msg.key()}: {err}")
+    else:
+        print(f"Message delivered to {msg.topic()} [{msg.partition()}]")</code></pre>
+
+<p><strong>Data Generation Function:</strong></p>
+<pre><code>def generate_stock_data():
+    symbol = random.choice(SYMBOLS)
+    open_price = round(random.uniform(1000, 15000), 2)
+    high = round(open_price + random.uniform(0, 100), 2)
+    low = round(open_price - random.uniform(0, 100), 2)
+    close = round(random.uniform(low, high), 2)
+    timestamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    return {
+        'date': timestamp,
+        'symbol_name': symbol,
+        'open': open_price,
+        'high': high,
+        'low': low,
+        'close': close
+    }</code></pre>
+
+<p><strong>Main Loop:</strong></p>
+<pre><code>def main():
+    p = Producer({'bootstrap.servers': BROKER})
+    while True:
+        data = generate_stock_data()
+        p.produce(
+            KAFKA_TOPIC,
+            key=data['symbol_name'],
+            value=json.dumps(data),
+            callback=delivery_report
+        )
+        p.poll(0)
+        time.sleep(1)
+    p.flush()</code></pre>
+
+<h3>Consumer Code (<code>consumer.py</code>)</h3>
+<p><strong>Purpose</strong>: Consume data from Kafka, process it using PySpark, and store it in MongoDB.</p>
+
+<h4>Key Components:</h4>
+<p><strong>Environment Setup:</strong></p>
+<pre><code>import os
+os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-11-openjdk-amd64"
+os.environ['PYSPARK_SUBMIT_ARGS'] = (
+    '--packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.3 pyspark-shell'
+)</code></pre>
+
+<p><strong>Imports:</strong></p>
+<pre><code>import json
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import from_json, col
+from pyspark.sql.types import StructType, StructField, StringType, DoubleType</code></pre>
+
+<p><strong>Spark Session Initialization:</strong></p>
+<pre><code>spark = SparkSession.builder \
+    .appName("KafkaToMongo") \
+    .config("spark.mongodb.output.uri", os.getenv('MONGO_URI')) \
+    .getOrCreate()
+spark.sparkContext.setLogLevel("WARN")</code></pre>
+
+<p><strong>Schema Definition:</strong></p>
+<pre><code>schema = StructType([
+    StructField("date", StringType(), True),
+    StructField("symbol_name", StringType(), True),
+    StructField("open", DoubleType(), True),
+    StructField("high", DoubleType(), True),
+    StructField("low", DoubleType(), True),
+    StructField("close", DoubleType(), True),
+])</code></pre>
+
+<p><strong>Reading from Kafka:</strong></p>
+<pre><code>df = spark.readStream \
+    .format("kafka") \
+    .option("kafka.bootstrap.servers", os.getenv('KAFKA_BOOTSTRAP_SERVERS')) \
+    .option("subscribe", "stock_data") \
+    .load()</code></pre>
+
+<p><strong>Data Parsing:</strong></p>
+<pre><code>parsed_df = df.selectExpr("CAST(value AS STRING)") \
+    .select(from_json(col("value"), schema).alias("data")) \
+    .select("data.*")</code></pre>
+
+<p><strong>Writing to MongoDB:</strong></p>
+<pre><code>query = parsed_df.writeStream \
+    .format("mongo") \
+    .option("uri", os.getenv('MONGO_URI')) \
+    .option("collection", "stock_prices") \
+    .outputMode("append") \
+    .start()
+query.awaitTermination()</code></pre>
+
+<h2>Running the Project</h2>
+<p><strong>Prerequisites:</strong></p>
+<ul>
+    <li>Docker and Docker Compose installed.</li>
+    <li>Ports 2181, 9092, 27017, 8080, 9090, 10000, and 9308 are available.</li>
+</ul>
+
+<p><strong>Clone the Repository:</strong></p>
+<pre><code>git clone https://github.com/yourusername/kafka-data-pipeline.git
+cd kafka-data-pipeline</code></pre>
+
+<p><strong>Set Executable Permissions and Run Setup Script:</strong></p>
+<pre><code>chmod +x setup.sh
+./setup.sh</code></pre>
+
+<p><strong>Access Services:</strong></p>
+<ul>
+    <li>Airflow Web UI: <a href="http://localhost:8080">http://localhost:8080</a></li>
+    <li>Prometheus Web UI: <a href="http://localhost:9090">http://localhost:9090</a></li>
+</ul>
+
+<p><strong>Monitor Logs:</strong></p>
+<pre><code>docker-compose logs -f producer
+docker-compose logs -f consumer</code></pre>
+
+<p><strong>Verify Data in MongoDB:</strong></p>
+<ul>
+    <li>Connect to MongoDB using a client (e.g., MongoDB Compass).</li>
+    <li>Check the <code>kafka_db</code> database and <code>stock_prices</code> collection.</li>
+</ul>
+
+<h2>Learning Outcomes</h2>
+<ul>
+    <li><strong>Kafka Producer-Consumer Mechanics</strong>: Understanding of how data is produced and consumed in a Kafka cluster.</li>
+    <li><strong>PySpark Streaming</strong>: Experience with real-time data processing using PySpark and Structured Streaming.</li>
+    <li><strong>Dockerization</strong>: Skills in containerizing applications and managing multi-service deployments with Docker Compose.</li>
+    <li><strong>Task Orchestration with Airflow</strong>: Knowledge of automating workflows and monitoring task dependencies.</li>
+    <li><strong>System Monitoring with Prometheus</strong>: Ability to collect and visualize metrics for system health.</li>
+    <li><strong>Troubleshooting Complex Systems</strong>: Developed problem-solving strategies for resolving integration and configuration issues.</li>
+</ul>
+
+<h2>Challenges Faced and Insights Gained</h2>
+
+<h3>1. Docker Image Build Failures: OpenJDK Installation Error</h3>
+<p><strong>Issue:</strong> The Docker image build process failed while installing <code>openjdk-11-jdk</code>.<br>
+<strong>Cause:</strong> Outdated or misconfigured package repositories in the Debian base image.<br>
+<strong>Solution:</strong> Updated the package lists before installation:</p>
+<pre><code>RUN apt-get update && apt-get install -y openjdk-17-jdk</code></pre>
+<p>Switched to <code>openjdk-17-jdk</code>, which was available in the repository.</p>
+
+<h3>2. PySpark Initialization Error: JAVA Gateway Exited</h3>
+<p><strong>Issue:</strong> Error: <code>PySparkRuntimeError: [JAVA_GATEWAY_EXITED] Java gateway process exited before sending its port number.</code><br>
+<strong>Cause:</strong> Incorrect or incompatible Java installation. Misconfigured <code>JAVA_HOME</code> environment variable.<br>
+<strong>Solution:</strong> Ensured the correct Java version was installed (OpenJDK 11 or higher). Set the <code>JAVA_HOME</code> environment variable correctly:</p>
+<pre><code>ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64</code></pre>
+
+<h3>3. Class Not Found Exception During Streaming Job Start</h3>
+<p><strong>Issue:</strong> Exception: <code>[DATA_SOURCE_NOT_FOUND] Failed to find data source: kafka.</code><br>
+<strong>Cause:</strong> The Kafka connector was not included in the Spark environment.<br>
+<strong>Solution:</strong> Added the required Spark-Kafka connector package:</p>
+<pre><code>os.environ['PYSPARK_SUBMIT_ARGS'] = (
+    '--packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.3 pyspark-shell'
+)</code></pre>
+
+<h3>4. Kafka Exporter Unauthorized Access</h3>
+<p><strong>Issue:</strong> Kafka exporter and dashboard services logged "Unauthorized" messages.<br>
+<strong>Cause:</strong> Exporter attempted to access secured resources without proper authentication.<br>
+<strong>Solution:</strong> Configured authentication mechanisms (e.g., OAuth or JWT tokens).</p>
+
+<h3>5. Native Hadoop Library Warning</h3>
+<p><strong>Issue:</strong> Warning: <code>WARN NativeCodeLoader: Unable to load native-hadoop library for your platform...</code><br>
+<strong>Solution:</strong> Marked as low priority since functionality was not affected. To eliminate the warning, included native Hadoop libraries in the environment.</p>
+
+<h3>6. Kafka Consumer Timeout Issues</h3>
+<p><strong>Issue:</strong> Consumer experienced timeouts when reading from Kafka topics.<br>
+<strong>Solution:</strong> Adjusted the Kafka consumer settings:</p>
+<pre><code>session.timeout.ms=30000
+fetch.max.wait.ms=500</code></pre>
+
+<h3>7. Container Networking Issues: Kafka Broker Connectivity</h3>
+<p><strong>Issue:</strong> Consumer was unable to connect to the Kafka broker.<br>
+<strong>Solution:</strong> Updated the Kafka broker configuration in <code>docker-compose.yml</code>:</p>
+<pre><code>KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092</code></pre>
+
+<h3>8. Dependency Version Compatibility Between Spark, Kafka, and Scala</h3>
+<p><strong>Issue:</strong> Compatibility issues between different versions caused application failures.<br>
+<strong>Solution:</strong> Aligned the versions: Spark 3.5.3, Kafka 3.5.1, Scala 2.12.</p>
+
+<h3>9. Logging and Debugging</h3>
+<p><strong>Solution:</strong> Set Spark log level to <code>INFO</code> and enabled logs for Spark executors and Kafka brokers:</p>
+<pre><code>spark.sparkContext.setLogLevel("INFO")</code></pre>
+
+<h2>Future Enhancements</h2>
+<ul>
+    <li><strong>Data Validation</strong>: Implement schema validation and error handling before sending data to Kafka.</li>
+    <li><strong>Fault Tolerance</strong>: Introduce message retry mechanisms for the producer and consumer.</li>
+    <li><strong>Security</strong>: Implement SSL encryption and authentication for Kafka and MongoDB.</li>
+    <li><strong>Monitoring Enhancements</strong>: Integrate Grafana with Prometheus for advanced visualization.</li>
+    <li><strong>Scaling</strong>: Deploy the pipeline in a distributed environment (e.g., Kubernetes) for scalability.</li>
+    <li><strong>Data Analytics</strong>: Extend the consumer to perform real-time analytics and generate alerts.</li>
+</ul>
+
+<h2>Conclusion</h2>
+<p>This project successfully demonstrates the implementation of a real-time data pipeline using Kafka, PySpark, and MongoDB, orchestrated with Apache Airflow and monitored using Prometheus. The challenges faced provided valuable learning opportunities in troubleshooting, dependency management, and system configuration. The project serves as a foundational platform for further exploration into big data processing, real-time analytics, and scalable architectures.</p>
+
+<h2>Additional Resources</h2>
+<ul>
+    <li><a href="https://kafka.apache.org/documentation/">Apache Kafka Documentation</a></li>
+    <li><a href="https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html">PySpark and Kafka Integration</a></li>
+    <li><a href="https://docs.mongodb.com/spark-connector/current/">MongoDB Spark Connector</a></li>
+    <li><a href="https://airflow.apache.org/docs/">Apache Airflow Documentation</a></li>
+    <li><a href="https://prometheus.io/docs/introduction/overview/">Prometheus Documentation</a></li>
+    <li><a href="https://docs.docker.com/compose/">Docker Compose Documentation</a></li>
+
+    <li><a href="https://stackoverflow.com/questions/69710694/spark-unable-to-load-native-hadoop-library-for-platform">Error resulution 1</a></li>
+
+<li><a href="https://stackoverflow.com/questions/55292779/pyspark-error-java-gateway-process-exited-before-sending-its-port-number">Error resulution 2</a></li>
+
+<li><a href="https://stackoverflow.com/questions/30172605/how-do-i-get-into-a-docker-containers-shell">Error resulution 3</a></li>
+
+<li><a href="https://stackoverflow.com/questions/31841509/pyspark-exception-java-gateway-process-exited-before-sending-the-driver-its-p">Error resulution 4</a></li>
+
+<li><a href="https://docs.datastax.com/en/jdk-install/doc/jdk-install/installOpenJdkDeb.html">Error resulution 5</a></li>
+
+<li><a href="https://askubuntu.com/questions/1463334/install-openjdk-11-jdk-32bit-on-ubuntu-20-04-64bit">Error resulution 6</a></li>
+</ul>
+
+</body>
+</html>
