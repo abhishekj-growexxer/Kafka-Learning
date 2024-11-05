@@ -29,7 +29,7 @@ Steps to Run the Project
 
 ### Step 1: Clone the Repository
 
-`git clone https://github.com/yourusername/kafka-data-pipeline.git cd kafka-data-pipeline`
+`git clone https://github.com/abhishekj-growexxer/Kafka-Learning.git cd Kafka-Learning`
 
 ### Step 2: Set Up and Run the Project
 
