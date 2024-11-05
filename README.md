@@ -29,7 +29,7 @@ Steps to Run the Project
 
 ### Step 1: Clone the Repository
 
-`git clone https://github.com/abhishekj-growexxer/Kafka-Learning.git cd Kafka-Learning`
+`git clone https://github.com/abhishekj-growexxer/Kafka-Learning.git && cd Kafka-Learning`
 
 ### Step 2: Set Up and Run the Project
 
